@@ -1,34 +1,9 @@
 import type { Express } from "express";
-import { createServer, type Server } from "http";
-import { WebSocketServer } from "ws";
 import { storage } from "./storage";
 import { insertUserSchema, insertCampaignSchema, insertContactSchema, insertAnalyticsSchema } from "@shared/schema";
 import { z } from "zod";
 
-export async function registerRoutes(app: Express): Promise<Server> {
-  const httpServer = createServer(app);
-
-  // WebSocket server for real-time features
-  const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
-  
-  wss.on('connection', (ws) => {
-    console.log('Client connected to WebSocket');
-    
-    ws.on('message', (message) => {
-      try {
-        const data = JSON.parse(message.toString());
-        // Handle real-time updates here
-        console.log('WebSocket message:', data);
-      } catch (error) {
-        console.error('WebSocket message error:', error);
-      }
-    });
-
-    ws.on('close', () => {
-      console.log('Client disconnected from WebSocket');
-    });
-  });
-
+export async function registerRoutes(app: Express): Promise<void> {
   // Auth routes
   app.post('/api/auth/register', async (req, res) => {
     try {
@@ -259,6 +234,4 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: 'Internal server error' });
     }
   });
-
-  return httpServer;
 }
